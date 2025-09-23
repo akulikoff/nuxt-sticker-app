@@ -1,12 +1,15 @@
 {
-  "semi": false,
-  "singleQuote": true,
-  "tabWidth": 2,
-  "trailingComma": "es5",
-  "printWidth": 100,
-  "endOfLine": "lf",
-  "arrowParens": "avoid",
-  "bracketSpacing": true,
-  "bracketSameLine": false,
-  "vueIndentScriptAndStyle": false
+	"semi": true,
+	"singleQuote": true,
+	"tabWidth": 2,
+	"useTabs": true,
+	"trailingComma": "es5",
+	"printWidth": 140,
+	"bracketSpacing": true,
+	"arrowParens": "avoid",
+	"endOfLine": "lf",
+	"vueIndentScriptAndStyle": false,
+	"htmlWhitespaceSensitivity": "ignore",
+	"bracketSameLine": false,
+	"singleAttributePerLine": true
 }
