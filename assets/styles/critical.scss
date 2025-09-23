@@ -1,0 +1,663 @@
+/* Critical SCSS to prevent FOUC and CLS - Complete styles */
+
+// Prevent Cumulative Layout Shift (CLS)
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  // Prevent layout shifts during loading
+  overflow-x: hidden;
+}
+
+// Variables
+:root {
+  --primary-color: #3b82f6;
+  --secondary-color: #8b5cf6;
+  --accent-color: #f59e0b;
+  --background-color: #f8fafc;
+  --surface-color: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --border-radius-full: 9999px;
+
+  --animation-duration-fast: 200ms;
+  --animation-duration-normal: 300ms;
+  --animation-duration-slow: 500ms;
+  --animation-easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// SCSS Variables for better organization
+$primary-color: #3b82f6;
+$secondary-color: #8b5cf6;
+$accent-color: #f59e0b;
+$background-color: #f8fafc;
+$surface-color: #ffffff;
+$text-primary: #1e293b;
+$text-secondary: #64748b;
+$text-muted: #94a3b8;
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 16px;
+$spacing-lg: 24px;
+$spacing-xl: 32px;
+$spacing-2xl: 48px;
+$spacing-3xl: 64px;
+
+$border-radius-sm: 4px;
+$border-radius-md: 8px;
+$border-radius-lg: 12px;
+$border-radius-xl: 16px;
+$border-radius-full: 9999px;
+
+$animation-duration-fast: 200ms;
+$animation-duration-normal: 300ms;
+$animation-duration-slow: 500ms;
+$animation-easing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+// Mixins
+@mixin reset-spacing {
+  margin: 0;
+  padding: 0;
+}
+
+@mixin smooth-transition($property: all, $duration: $animation-duration-normal) {
+  transition: $property $duration $animation-easing-smooth;
+}
+
+@mixin card-shadow($level: 1) {
+  @if $level == 1 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  } @else if $level == 2 {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  } @else if $level == 3 {
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  } @else if $level == 4 {
+    box-shadow: 0 20px 25px rgba(0, 0, 0, 0.15);
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin responsive-mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+// Reset
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  @include reset-spacing;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: $text-primary;
+  background-color: $background-color;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Typography
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @include reset-spacing;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  @include reset-spacing;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+ul,
+ol {
+  list-style: none;
+  @include reset-spacing;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// Layout fundamentals
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
+
+// Navigation
+.navigation {
+  position: sticky;
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  z-index: 1020;
+
+  &__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 $spacing-lg;
+  }
+
+  &__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
+
+  &__logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $primary-color;
+    text-decoration: none;
+    @include smooth-transition(color);
+
+    &:hover {
+      color: #1e40af;
+    }
+  }
+
+  &__menu {
+    display: flex;
+    gap: $spacing-xl;
+
+    @include responsive-mobile {
+      // On mobile, hide the menu text but keep the clickable area for testing
+      gap: $spacing-md;
+      font-size: 0;
+
+      .navigation__link {
+        font-size: 0.875rem;
+        padding: $spacing-xs $spacing-sm;
+        background: rgba(59, 130, 246, 0.1);
+        border-radius: $border-radius-sm;
+        margin-left: $spacing-sm;
+      }
+    }
+  }
+
+  &__link {
+    position: relative;
+    padding: $spacing-sm 0;
+    color: $text-secondary;
+    font-weight: 500;
+    text-decoration: none;
+    @include smooth-transition(color);
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: $primary-color;
+      @include smooth-transition(width);
+    }
+
+    &:hover {
+      color: $text-primary;
+
+      &::after {
+        width: 100%;
+      }
+    }
+
+    &--active {
+      color: $primary-color;
+
+      &::after {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Home Page
+.home-page {
+  min-height: 100vh;
+  @include flex-center;
+  text-align: center;
+  padding: $spacing-xl;
+  background: linear-gradient(135deg, $background-color 0%, rgba(59, 130, 246, 0.05) 100%);
+
+  &__content {
+    max-width: 600px;
+    // Removed animation to prevent CLS
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    margin-bottom: $spacing-lg;
+    color: $text-primary;
+
+    @include responsive-mobile {
+      font-size: 2rem;
+    }
+  }
+
+  &__subtitle {
+    font-size: 1.125rem;
+    color: $text-secondary;
+    margin-bottom: $spacing-2xl;
+    line-height: 1.75;
+  }
+
+  &__cta {
+    @include flex-center;
+    padding: $spacing-md $spacing-xl;
+    background-color: $primary-color;
+    color: white;
+    border-radius: $border-radius-xl;
+    font-size: 1.125rem;
+    font-weight: 500;
+    text-decoration: none;
+    @include smooth-transition;
+
+    &:hover {
+      background-color: #1e40af;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+    }
+  }
+}
+
+// Sticker Page Styles
+.sticker-page {
+  min-height: 100vh;
+  padding: $spacing-xl;
+
+  &__container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-3xl;
+    // Removed animation to prevent CLS
+  }
+
+  &__title {
+    font-size: 2.25rem;
+    margin-bottom: $spacing-md;
+    color: $text-primary;
+  }
+
+  &__description {
+    font-size: 1.125rem;
+    color: $text-secondary;
+    line-height: 1.75;
+  }
+
+  &__content {
+    // Removed animation to prevent CLS
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  &__section {
+    margin-bottom: $spacing-3xl;
+    padding: $spacing-xl;
+    background-color: $surface-color;
+    border-radius: $border-radius-xl;
+    @include card-shadow(1);
+    @include smooth-transition(box-shadow);
+
+    &:hover {
+      @include card-shadow(2);
+    }
+  }
+
+  &__section-title {
+    font-size: 1.5rem;
+    margin-bottom: $spacing-lg;
+    color: $text-primary;
+  }
+
+  &__text {
+    color: $text-secondary;
+    line-height: 1.75;
+    margin-bottom: $spacing-md;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  &__highlight {
+    background: linear-gradient(
+      120deg,
+      transparent 0%,
+      rgba(245, 158, 11, 0.2) 50%,
+      transparent 100%
+    );
+    padding: $spacing-xs $spacing-sm;
+    border-radius: $border-radius-sm;
+    font-weight: 500;
+  }
+
+  &__demo-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: $border-radius-lg;
+    padding: $spacing-lg;
+    margin: $spacing-xl 0;
+    text-align: center;
+  }
+
+  &__demo-info-title {
+    font-size: 1.25rem;
+    color: $primary-color;
+    margin-bottom: $spacing-sm;
+    font-weight: 600;
+  }
+
+  &__demo-info-text {
+    color: $text-secondary;
+    font-style: italic;
+    line-height: 1.75;
+    margin: 0;
+  }
+}
+
+// Animated Sticker Component
+.animated-sticker {
+  position: fixed;
+  top: 50%;
+  right: $spacing-lg;
+  transform: translateY(-50%);
+  z-index: 1030;
+  // Optimize for animations without breaking positioning
+  will-change: transform;
+
+  @include responsive-mobile {
+    right: $spacing-md;
+  }
+
+  &__trigger {
+    width: 80px;
+    height: 80px;
+    border-radius: $border-radius-full;
+    background: linear-gradient(135deg, $primary-color, $secondary-color);
+    @include flex-center;
+    cursor: pointer;
+    @include card-shadow(3);
+    @include smooth-transition;
+    border: none;
+    // Improve touch target
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+
+    @include responsive-mobile {
+      width: 60px;
+      height: 60px;
+      // Ensure minimum touch target size
+      min-width: 44px;
+      min-height: 44px;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+      @include card-shadow(4);
+    }
+
+    // Touch-specific styles
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &--expanded &-icon {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__trigger-icon {
+    width: 32px;
+    height: 32px;
+    color: white;
+    @include smooth-transition(transform);
+
+    @include responsive-mobile {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  &__content {
+    position: absolute;
+    right: 100px; // Move content away from the trigger button
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none; // Disable pointer events when hidden
+    @include smooth-transition(opacity, visibility);
+
+    @include responsive-mobile {
+      right: 80px; // Adjust for smaller mobile trigger
+      transform: translateY(-50%) scale(0.9);
+    }
+
+    &--expanded {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto; // Enable pointer events when visible
+
+      @include responsive-mobile {
+        transform: translateY(-50%) scale(1);
+      }
+    }
+  }
+
+  &__cards {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-sm;
+    padding-right: $spacing-md;
+    pointer-events: none; // Prevent interference with trigger button
+
+    @include responsive-mobile {
+      padding-right: $spacing-sm;
+    }
+  }
+
+  &__card {
+    width: 120px;
+    height: 120px;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    @include card-shadow(2);
+    opacity: 0;
+    transform: translateX(20px);
+    @include smooth-transition;
+    pointer-events: auto; // Re-enable pointer events for individual cards
+
+    @include responsive-mobile {
+      width: 100px;
+      height: 100px;
+    }
+
+    &--visible {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    &:nth-child(1) {
+      transition-delay: 100ms;
+    }
+    &:nth-child(2) {
+      transition-delay: 200ms;
+    }
+    &:nth-child(3) {
+      transition-delay: 300ms;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+      @include card-shadow(4);
+      z-index: 10;
+
+      img {
+        transform: scale(1.1);
+      }
+    }
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      @include smooth-transition(transform);
+    }
+  }
+
+  // Loading and Error States
+  &__loading,
+  &__error {
+    width: 120px;
+    height: 120px;
+    border-radius: $border-radius-lg;
+    @include flex-center;
+    flex-direction: column;
+    @include card-shadow(2);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    gap: $spacing-xs;
+
+    @include responsive-mobile {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
+  &__loading {
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    color: $primary-color;
+  }
+
+  &__error {
+    background-color: rgba(245, 158, 11, 0.1);
+    color: $accent-color;
+    padding: $spacing-sm;
+  }
+
+  &__loading-spinner,
+  &__trigger-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.2));
+  }
+
+  &__retry-btn {
+    margin-top: $spacing-xs;
+    padding: $spacing-xs $spacing-sm;
+    background-color: $accent-color;
+    color: white;
+    border: none;
+    border-radius: $border-radius-sm;
+    font-size: 0.625rem;
+    cursor: pointer;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

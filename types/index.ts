@@ -1,17 +1,13 @@
 // Type definitions for the Nuxt Sticker App
+// Using Vue's built-in types for better compatibility and type safety
 
-// Generic Ref type for Vue reactivity
-type Ref<T> = {
-  value: T
-}
+import type { Ref } from 'vue'
 
 // Cat Image Interface
 export interface CatImage {
   id: string
   url: string
   timestamp: number
-  loaded: boolean
-  error?: string
 }
 
 // Sticker State Interface
@@ -42,12 +38,34 @@ export interface ApiResponse<T> {
   message?: string
 }
 
+// API Query parameters interface
+export interface CatImagesQuery {
+  count?: string | number
+}
+
+// API Response interface for cat images
+export interface CatImagesResponse {
+  success: boolean
+  data: CatImage[]
+  count: number
+}
+
+// Internal fetch result type
+export type FetchResult = CatImage | null
+
 // Composable Return Types
 export interface CatImagesComposable {
-  images: Ref<CatImage[]>
-  loading: Ref<boolean>
-  error: Ref<string | null>
+  images: Readonly<Ref<readonly CatImage[]>>
+  loading: Readonly<Ref<boolean>>
+  error: Readonly<Ref<string | null>>
   refetch: () => Promise<void>
+}
+
+// Internal cache entry type for composables
+export interface CacheEntry {
+  images: CatImage[]
+  timestamp: number
+  ttl: number
 }
 
 // Component Props Types
@@ -55,13 +73,6 @@ export interface StickerCardProps {
   image: CatImage
   index: number
   isVisible: boolean
-}
-
-export interface ImageLoaderProps {
-  src: string
-  alt: string
-  loading?: 'lazy' | 'eager'
-  fallback?: string
 }
 
 // Navigation Types

@@ -1,71 +1,11 @@
-<script setup lang="ts">
-// Component for the main animated sticker functionality
-const { images, loading, error, refetch } = useCatImages()
-
-// Component state
-const isExpanded = ref(false)
-const isHovered = ref(false)
-const containerRef = ref<HTMLElement>()
-
-// Computed properties
-const hasImages = computed(() => images.value.length > 0)
-const showContent = computed(() => isExpanded.value && hasImages.value)
-
-// Handle trigger interactions
-const handleTriggerClick = async () => {
-  if (!hasImages.value && !loading.value) {
-    await refetch()
-  }
-  isExpanded.value = !isExpanded.value
-}
-
-const handleMouseEnter = () => {
-  isHovered.value = true
-  if (!isExpanded.value) {
-    isExpanded.value = true
-  }
-}
-
-const handleMouseLeave = () => {
-  isHovered.value = false
-  // Keep expanded for a short time to allow interaction
-  setTimeout(() => {
-    if (!isHovered.value) {
-      isExpanded.value = false
-    }
-  }, 300)
-}
-
-// Load images on mount
-onMounted(async () => {
-  if (!hasImages.value) {
-    await refetch()
-  }
-})
-
-// Handle click outside to close
-const handleClickOutside = (event: Event) => {
-  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
-    isExpanded.value = false
-    isHovered.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-</script>
-
 <template>
   <div 
     ref="containerRef"
     class="animated-sticker"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
+    @touchstart="handleTouchStart"
+    @touchmove="handleTouchMove"
   >
     <!-- Trigger Button -->
     <button
@@ -75,7 +15,8 @@ onUnmounted(() => {
         'animated-sticker__trigger--loading': loading,
         'animated-sticker__trigger--error': error
       }"
-      @click="handleTriggerClick"
+      @click="handleTriggerClick($event)"
+      @touchend="handleTouchEnd"
       :aria-label="isExpanded ? 'Close cat sticker' : 'Open cat sticker'"
     >
       <!-- Loading state -->
@@ -102,7 +43,7 @@ onUnmounted(() => {
         <line x1="12" y1="16" x2="12.01" y2="16" />
       </svg>
       
-      <!-- Normal state - Cat paw icon -->
+      <!-- Normal state - Simple outline Cat face -->
       <svg
         v-else
         class="animated-sticker__trigger-icon"
@@ -115,12 +56,17 @@ onUnmounted(() => {
         stroke-linecap="round"
         stroke-linejoin="round"
       >
-        <path d="M14 19a6 6 0 0 0-12 0" />
-        <circle cx="8" cy="9" r="3" />
-        <path d="M15 5a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-        <path d="M17 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-        <path d="M5 5a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
-        <path d="M3 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0" />
+        <!-- Cat head circle -->
+        <circle cx="12" cy="12" r="6"/>
+        <!-- Cat ears -->
+        <path d="M8 8 L12 4 L16 8"/>
+        <!-- Eyes -->
+        <circle cx="10" cy="10" r="0.5"/>
+        <circle cx="14" cy="10" r="0.5"/>
+        <!-- Nose -->
+        <path d="M12 13 L11.5 13.5 L12.5 13.5 Z"/>
+        <!-- Mouth -->
+        <path d="M12 14 Q10.5 15 9.5 14.5 M12 14 Q13.5 15 14.5 14.5"/>
       </svg>
     </button>
 
@@ -174,10 +120,10 @@ onUnmounted(() => {
         
         <!-- Image cards -->
         <StickerCard
-          v-for="(image, index) in images"
+          v-for="(image, index) in typedImages"
           :key="image.id"
           :image="image"
-          :index="index"
+          :index="Number(index)"
           :is-visible="showContent"
           class="animated-sticker__card"
         />
@@ -186,7 +132,261 @@ onUnmounted(() => {
   </div>
 </template>
 
+<script setup lang="ts">
+import type { CatImage } from '~/types'
+
+// Component for the main animated sticker functionality
+const { images, loading, error, refetch } = useCatImages()
+
+// Component state
+const isExpanded = ref(false)
+const isHovered = ref(false)
+const containerRef = ref<HTMLElement>()
+const isTouchDevice = ref(false)
+
+// Touch state management
+const touchState = ref({
+  startTime: 0,
+  startPosition: { x: 0, y: 0 },
+  isValidTap: false,
+  preventNextClick: false
+})
+
+// Debouncing state
+const lastTapTime = ref(0)
+const debounceDelay = 300 // ms
+
+// Computed properties
+const showContent = computed(() => isExpanded.value)
+
+// Explicitly typed reactive images for template
+const typedImages = computed<CatImage[]>(() => [...images.value])
+
+// Enhanced device detection
+const detectTouchDevice = () => {
+  // Define interface for legacy touch properties
+  interface NavigatorWithLegacyTouch extends Navigator {
+    msMaxTouchPoints?: number
+  }
+  
+  // Multiple methods to detect touch capability
+  const hasTouchStart = 'ontouchstart' in window
+  const hasMaxTouchPoints = navigator.maxTouchPoints > 0
+  const nav = navigator as NavigatorWithLegacyTouch
+  const hasTouchPoints = 'msMaxTouchPoints' in navigator && (nav.msMaxTouchPoints || 0) > 0
+  const hasPointerEvents = 'onpointerdown' in window
+  
+  isTouchDevice.value = hasTouchStart || hasMaxTouchPoints || hasTouchPoints
+  
+  // Log device capabilities in development
+  if (import.meta.dev) {
+    console.log('Device detection:', {
+      isTouchDevice: isTouchDevice.value,
+      hasTouchStart,
+      hasMaxTouchPoints,
+      hasTouchPoints,
+      hasPointerEvents,
+      userAgent: navigator.userAgent
+    })
+  }
+}
+
+// Handle trigger interactions
+const handleTriggerClick = (event?: Event) => {
+  const now = Date.now()
+  
+  // Prevent ghost clicks on touch devices
+  if (touchState.value.preventNextClick && event) {
+    event.preventDefault()
+    return
+  }
+  
+  // Debounce rapid successive taps
+  if (now - lastTapTime.value < debounceDelay) {
+    if (import.meta.dev) {
+      console.log('Tap debounced - too rapid')
+    }
+    return
+  }
+  
+  lastTapTime.value = now
+  
+  // Toggle expansion state
+  isExpanded.value = !isExpanded.value
+  
+  // Log interaction in development
+  if (import.meta.dev) {
+    console.log('Sticker interaction:', {
+      expanded: isExpanded.value,
+      isTouchDevice: isTouchDevice.value,
+      timestamp: now
+    })
+  }
+  
+  // Load images in background if expanding and no images
+  if (isExpanded.value && images.value.length === 0 && !loading.value) {
+    refetch()
+  }
+}
+
+const handleMouseEnter = () => {
+  // Only handle mouse events on non-touch devices or hybrid devices with hover capability
+  if (isTouchDevice.value && !window.matchMedia('(hover: hover)').matches) return
+  
+  isHovered.value = true
+  if (!isExpanded.value) {
+    isExpanded.value = true
+  }
+  
+  // Load images in background if not loaded
+  if (images.value.length === 0 && !loading.value) {
+    refetch()
+  }
+}
+
+const handleMouseLeave = () => {
+  // Only handle mouse events on non-touch devices or hybrid devices with hover capability
+  if (isTouchDevice.value && !window.matchMedia('(hover: hover)').matches) return
+  
+  isHovered.value = false
+  // Keep expanded for a short time to allow interaction
+  setTimeout(() => {
+    if (!isHovered.value && containerRef.value) {
+      isExpanded.value = false
+    }
+  }, 300)
+}
+
+const handleTouchStart = (event: TouchEvent) => {
+  const touch = event.touches[0]
+  if (!touch) return
+  
+  touchState.value = {
+    startTime: Date.now(),
+    startPosition: { x: touch.clientX, y: touch.clientY },
+    isValidTap: true,
+    preventNextClick: false
+  }
+  
+  // Prevent mouse events from firing on touch devices
+  event.preventDefault()
+}
+
+const handleTouchMove = (event: TouchEvent) => {
+  if (!touchState.value.isValidTap) return
+  
+  const touch = event.touches[0]
+  if (!touch) return
+  
+  const touchDistance = Math.sqrt(
+    Math.pow(touch.clientX - touchState.value.startPosition.x, 2) +
+    Math.pow(touch.clientY - touchState.value.startPosition.y, 2)
+  )
+  
+  // If user moves more than 10px, it's likely scrolling - invalidate the tap
+  if (touchDistance > 10) {
+    touchState.value.isValidTap = false
+  }
+}
+
+const handleTouchEnd = (event: TouchEvent) => {
+  const touch = event.changedTouches[0]
+  if (!touch || !touchState.value.isValidTap) {
+    if (import.meta.dev && !touchState.value.isValidTap) {
+      console.log('Touch end ignored - invalid tap state')
+    }
+    return
+  }
+  
+  const touchDuration = Date.now() - touchState.value.startTime
+  const touchDistance = Math.sqrt(
+    Math.pow(touch.clientX - touchState.value.startPosition.x, 2) +
+    Math.pow(touch.clientY - touchState.value.startPosition.y, 2)
+  )
+  
+  // Validate touch: quick tap (< 500ms) with minimal movement (< 10px)
+  const isValidTap = touchDuration < 500 && touchDistance < 10
+  
+  // Log touch validation in development
+  if (import.meta.dev) {
+    console.log('Touch validation:', {
+      duration: touchDuration,
+      distance: touchDistance,
+      isValid: isValidTap,
+      threshold: { maxDuration: 500, maxDistance: 10 }
+    })
+  }
+  
+  if (isValidTap) {
+    event.preventDefault()
+    touchState.value.preventNextClick = true
+    
+    // Prevent ghost clicks by temporarily ignoring click events
+    setTimeout(() => {
+      touchState.value.preventNextClick = false
+      if (import.meta.dev) {
+        console.log('Ghost click prevention disabled')
+      }
+    }, 300)
+    
+    handleTriggerClick()
+  }
+  
+  // Reset touch state
+  touchState.value.isValidTap = false
+}
+
+// Handle click outside to close
+const handleClickOutside = (event: Event) => {
+  if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isExpanded.value = false
+    isHovered.value = false
+  }
+}
+
+// Handle touch outside to close (for mobile)
+const handleTouchOutside = (event: Event) => {
+  const touchEvent = event as TouchEvent
+  const target = touchEvent.touches?.[0]?.target || touchEvent.target
+  if (containerRef.value && target && !containerRef.value.contains(target as Node)) {
+    isExpanded.value = false
+    isHovered.value = false
+  }
+}
+
+// Load images and set up event listeners on mount
+onMounted(() => {
+  // Detect if this is a touch device
+  detectTouchDevice()
+  
+  // Load initial images in background
+  if (images.value.length === 0) {
+    refetch().then(() => {
+      // Images are loaded, no additional preloading needed with NuxtImg
+      console.log('Cat images loaded successfully')
+    })
+  }
+  
+  // Add event listeners for closing on outside click/touch
+  document.addEventListener('click', handleClickOutside)
+  document.addEventListener('touchend', handleTouchOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('touchend', handleTouchOutside)
+  
+  // Reset touch state on unmount
+  touchState.value = {
+    startTime: 0,
+    startPosition: { x: 0, y: 0 },
+    isValidTap: false,
+    preventNextClick: false
+  }
+})
+</script>
+
 <style lang="scss" scoped>
 // Styles are defined in the main SCSS architecture
-// Using the .animated-sticker class from assets/styles/components/_sticker.scss
+// Using the .animated-sticker class from assets/styles/critical.scss
 </style>

@@ -12,13 +12,69 @@ node_modules
 # Logs
 logs
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Misc
+# Test results and coverage
+test-results/
+test-results.json
+playwright-report/
+blob-report/
+playwright/.cache/
+coverage/
+.nyc_output
+junit.xml
+*.lcov
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# Runtime and cache
 .fleet
-.idea
+.cache/
+.eslintcache
+.stylelintcache
 
 # Local env files
 .env
 .env.*
 !.env.example
+
+# Package manager files
+.pnpm-debug.log*
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# Build and deployment
+build/
+out/
+
+# Service files
+*.pid
+*.seed
+*.pid.lock
