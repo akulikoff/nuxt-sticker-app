@@ -13,7 +13,7 @@
 				<section class="sticker-page__section">
 					<h2 class="sticker-page__section-title">Advanced Vue 3 Features</h2>
 					<p class="sticker-page__text">
-						This application demonstrates the power of Vue 3's Composition API combined with Nuxt 4's modern architecture. The sticker
+						This application demonstrates the power of Vue 3's Composition API combined with Nuxt4's modern architecture. The sticker
 						component uses reactive state management,
 						<span class="sticker-page__highlight">composables for API integration</span>
 						, and sophisticated animation techniques.
