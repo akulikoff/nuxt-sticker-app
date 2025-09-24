@@ -61,8 +61,8 @@
 			<svg
 				v-else
 				class="animated-sticker__trigger-icon"
-				width="32"
-				height="32"
+				width="50"
+				height="50"
 				viewBox="0 0 24 24"
 				fill="none"
 				stroke="currentColor"
@@ -76,8 +76,10 @@
 					cy="12"
 					r="6"
 				/>
-				<!-- Cat ears -->
-				<path d="M8 8 L12 4 L16 8" />
+				<!-- Left ear -->
+				<path d="M7 8 L9 4 L11 8" />
+				<!-- Right ear -->
+				<path d="M13 8 L15 4 L17 8" />
 				<!-- Eyes -->
 				<circle
 					cx="10"

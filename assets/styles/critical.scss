@@ -472,8 +472,8 @@ img {
 	}
 
 	&__trigger-icon {
-		width: 32px;
-		height: 32px;
+		width: 50px;
+		height: 50px;
 		color: white;
 		@include smooth-transition(transform);
 
@@ -487,11 +487,14 @@ img {
 		position: absolute;
 		right: 100px; // Move content away from the trigger button
 		top: 50%;
-		transform: translateY(-50%);
+		transform: translateY(-50%) scale(0.8);
 		opacity: 0;
 		visibility: hidden;
 		pointer-events: none; // Disable pointer events when hidden
-		@include smooth-transition(opacity, visibility);
+		transition:
+			opacity var(--animation-duration-normal) var(--animation-easing-smooth),
+			visibility var(--animation-duration-normal) var(--animation-easing-smooth),
+			transform var(--animation-duration-normal) var(--animation-easing-smooth);
 
 		@include responsive-mobile {
 			right: 80px; // Adjust for smaller mobile trigger
@@ -502,6 +505,7 @@ img {
 			opacity: 1;
 			visibility: visible;
 			pointer-events: auto; // Enable pointer events when visible
+			transform: translateY(-50%) scale(1);
 
 			@include responsive-mobile {
 				transform: translateY(-50%) scale(1);
@@ -514,7 +518,7 @@ img {
 		flex-direction: column;
 		gap: $spacing-sm;
 		padding-right: $spacing-md;
-		pointer-events: none; // Prevent interference with trigger button
+		// pointer-events: none; // Prevent interference with trigger button
 
 		@include responsive-mobile {
 			padding-right: $spacing-sm;
