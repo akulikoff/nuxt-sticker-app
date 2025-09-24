@@ -99,7 +99,6 @@ export default defineNuxtConfig({
 
 	// Build optimizations with enhanced Nitro configuration
 	nitro: {
-		preset: 'node-server',
 		prerender: {
 			routes: ['/'],
 			crawlLinks: true,
