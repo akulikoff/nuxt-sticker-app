@@ -1,432 +1,255 @@
 <template>
-	<div
-		ref="containerRef"
-		class="animated-sticker"
-		@mouseenter="handleMouseEnter"
-		@mouseleave="handleMouseLeave"
-		@touchstart="handleTouchStart"
-		@touchmove="handleTouchMove"
-	>
-		<!-- Trigger Button -->
-		<button
-			class="animated-sticker__trigger"
-			:class="{
-				'animated-sticker__trigger--expanded': isExpanded,
-				'animated-sticker__trigger--loading': loading,
-				'animated-sticker__trigger--error': error,
-			}"
-			@click="handleTriggerClick($event)"
-			@touchend="handleTouchEnd"
-			:aria-label="isExpanded ? 'Close cat sticker' : 'Open cat sticker'"
-		>
-			<!-- Loading state -->
-			<div
-				v-if="loading"
-				class="animated-sticker__trigger-spinner"
-			/>
+  <div
+    ref="containerRef"
+    class="animated-sticker"
+    :class="{ 'animated-sticker--is-hovered': isExpanded }"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
+    @click="handleTriggerClick"
+  >
+    <div class="animated-sticker__title">Консультация эксперта</div>
+    <div class="animated-sticker__image">
+      <div
+        v-for="(image, index) in typedImages.slice(0, 3)"
+        :key="image.id"
+        class="animated-sticker__image-photo"
+      >
+        <NuxtImg
+          :src="image.url"
+          alt="фото эксперта"
+        />
+      </div>
+    </div>
+    <svg
+      class="animated-sticker__icon"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M3.82506 9.00006L9.42506 14.6001L8.00006 16.0001L6.10352e-05 8.00006L8.00006 6.10352e-05L9.42506 1.40006L3.82506 7.00006H16.0001V9.00006H3.82506Z"
+        fill="currentColor"
+      />
+    </svg>
 
-			<!-- Error state -->
-			<svg
-				v-else-if="error"
-				class="animated-sticker__trigger-icon"
-				width="32"
-				height="32"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<circle
-					cx="12"
-					cy="12"
-					r="10"
-				/>
-				<line
-					x1="12"
-					y1="8"
-					x2="12"
-					y2="12"
-				/>
-				<line
-					x1="12"
-					y1="16"
-					x2="12.01"
-					y2="16"
-				/>
-			</svg>
-
-			<!-- Normal state - Simple outline Cat face -->
-			<svg
-				v-else
-				class="animated-sticker__trigger-icon"
-				width="50"
-				height="50"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-				stroke-linecap="round"
-				stroke-linejoin="round"
-			>
-				<!-- Cat head circle -->
-				<circle
-					cx="12"
-					cy="12"
-					r="6"
-				/>
-				<!-- Left ear -->
-				<path d="M7 8 L9 4 L11 8" />
-				<!-- Right ear -->
-				<path d="M13 8 L15 4 L17 8" />
-				<!-- Eyes -->
-				<circle
-					cx="10"
-					cy="10"
-					r="0.5"
-				/>
-				<circle
-					cx="14"
-					cy="10"
-					r="0.5"
-				/>
-				<!-- Nose -->
-				<path d="M12 13 L11.5 13.5 L12.5 13.5 Z" />
-				<!-- Mouth -->
-				<path d="M12 14 Q10.5 15 9.5 14.5 M12 14 Q13.5 15 14.5 14.5" />
-			</svg>
-		</button>
-
-		<!-- Content Cards -->
-		<div
-			class="animated-sticker__content"
-			:class="{ 'animated-sticker__content--expanded': showContent }"
-		>
-			<div class="animated-sticker__cards">
-				<!-- Error message -->
-				<div
-					v-if="error && !loading"
-					class="animated-sticker__error"
-				>
-					<svg
-						width="24"
-						height="24"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-					>
-						<circle
-							cx="12"
-							cy="12"
-							r="10"
-						/>
-						<line
-							x1="15"
-							y1="9"
-							x2="9"
-							y2="15"
-						/>
-						<line
-							x1="9"
-							y1="9"
-							x2="15"
-							y2="15"
-						/>
-					</svg>
-					<span>{{ error }}</span>
-					<button
-						@click="refetch"
-						class="animated-sticker__retry-btn"
-					>
-						Retry
-					</button>
-				</div>
-
-				<!-- Loading cards -->
-				<div
-					v-else-if="loading"
-					class="animated-sticker__loading-cards"
-				>
-					<div
-						v-for="n in 3"
-						:key="`loading-${n}`"
-						class="animated-sticker__loading"
-					>
-						<div class="animated-sticker__loading-spinner" />
-					</div>
-				</div>
-
-				<!-- Image cards -->
-				<StickerCard
-					v-for="(image, index) in typedImages"
-					:key="image.id"
-					:image="image"
-					:index="Number(index)"
-					:is-visible="showContent"
-					class="animated-sticker__card"
-				/>
-			</div>
-		</div>
-	</div>
+    <button
+      class="animated-sticker__action"
+      type="button"
+      :aria-expanded="isExpanded"
+      @click.stop
+    >
+      <span class="app-button__label">
+        <span class="app-button__text">Получить консультацию</span>
+      </span>
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import type { CatImage } from '~/types';
-
-// Component for the main animated sticker functionality
-const { images, loading, error, refetch } = useCatImages();
-
-// Component state
+import { useCatImages } from '~/composables/useCatImages';
+const { images, loading, refetch } = useCatImages();
 const isExpanded = ref(false);
-const isHovered = ref(false);
 const containerRef = ref<HTMLElement>();
-const isTouchDevice = ref(false);
-
-// Touch state management
-const touchState = ref({
-	startTime: 0,
-	startPosition: { x: 0, y: 0 },
-	isValidTap: false,
-	preventNextClick: false,
-});
-
-// Debouncing state
-const lastTapTime = ref(0);
-const debounceDelay = 300; // ms
-
-// Computed properties
-const showContent = computed(() => isExpanded.value);
-
-// Explicitly typed reactive images for template
 const typedImages = computed<CatImage[]>(() => [...images.value]);
+const hasUserInteracted = ref(false); // был ли клик или тач?
 
-// Enhanced device detection
-const detectTouchDevice = () => {
-	// Define interface for legacy touch properties
-	interface NavigatorWithLegacyTouch extends Navigator {
-		msMaxTouchPoints?: number;
-	}
-
-	// Multiple methods to detect touch capability
-	const hasTouchStart = 'ontouchstart' in window;
-	const hasMaxTouchPoints = navigator.maxTouchPoints > 0;
-	const nav = navigator as NavigatorWithLegacyTouch;
-	const hasTouchPoints = 'msMaxTouchPoints' in navigator && (nav.msMaxTouchPoints || 0) > 0;
-	const hasPointerEvents = 'onpointerdown' in window;
-
-	isTouchDevice.value = hasTouchStart || hasMaxTouchPoints || hasTouchPoints;
-
-	// Log device capabilities in development
-	if (import.meta.dev) {
-		console.log('Device detection:', {
-			isTouchDevice: isTouchDevice.value,
-			hasTouchStart,
-			hasMaxTouchPoints,
-			hasTouchPoints,
-			hasPointerEvents,
-			userAgent: navigator.userAgent,
-		});
-	}
+const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+  if (isExpanded.value && containerRef.value && !containerRef.value.contains(event.target as Node)) {
+    isExpanded.value = false;
+    hasUserInteracted.value = true;
+  }
 };
-
-// Handle trigger interactions
-const handleTriggerClick = (event?: Event) => {
-	const now = Date.now();
-
-	// Prevent ghost clicks on touch devices
-	if (touchState.value.preventNextClick && event) {
-		event.preventDefault();
-		return;
-	}
-
-	// Debounce rapid successive taps
-	if (now - lastTapTime.value < debounceDelay) {
-		if (import.meta.dev) {
-			console.log('Tap debounced - too rapid');
-		}
-		return;
-	}
-
-	lastTapTime.value = now;
-
-	// Toggle expansion state
-	isExpanded.value = !isExpanded.value;
-
-	// Log interaction in development
-	if (import.meta.dev) {
-		console.log('Sticker interaction:', {
-			expanded: isExpanded.value,
-			isTouchDevice: isTouchDevice.value,
-			timestamp: now,
-		});
-	}
-
-	// Load images in background if expanding and no images
-	if (isExpanded.value && images.value.length === 0 && !loading.value) {
-		refetch();
-	}
+const maybeRefetchImages = () => {
+  if (images.value.length === 0 && !loading.value) {
+    refetch();
+  }
 };
 
 const handleMouseEnter = () => {
-	// Only handle mouse events on non-touch devices or hybrid devices with hover capability
-	if (isTouchDevice.value && !window.matchMedia('(hover: hover)').matches) return;
-
-	isHovered.value = true;
-	if (!isExpanded.value) {
-		isExpanded.value = true;
-	}
-
-	// Load images in background if not loaded
-	if (images.value.length === 0 && !loading.value) {
-		refetch();
-	}
+  // Ховер работает ТОЛЬКО если пользователь ещё не взаимодействовал (десктоп)
+  if (!hasUserInteracted.value) {
+    isExpanded.value = true;
+    maybeRefetchImages();
+  }
 };
 
 const handleMouseLeave = () => {
-	// Only handle mouse events on non-touch devices or hybrid devices with hover capability
-	if (isTouchDevice.value && !window.matchMedia('(hover: hover)').matches) return;
-
-	isHovered.value = false;
-	// Keep expanded for a short time to allow interaction
-	setTimeout(() => {
-		if (!isHovered.value && containerRef.value) {
-			isExpanded.value = false;
-		}
-	}, 300);
+  if (!hasUserInteracted.value) {
+    isExpanded.value = false;
+  }
 };
 
-const handleTouchStart = (event: TouchEvent) => {
-	const touch = event.touches[0];
-	if (!touch) return;
+const handleTriggerClick = (e: MouseEvent) => {
+  // Предотвращаем конфликт с ховером на десктопе
+  e.stopPropagation();
+  e.preventDefault();
 
-	touchState.value = {
-		startTime: Date.now(),
-		startPosition: { x: touch.clientX, y: touch.clientY },
-		isValidTap: true,
-		preventNextClick: false,
-	};
+  hasUserInteracted.value = true;
+  isExpanded.value = !isExpanded.value;
 
-	// Prevent mouse events from firing on touch devices
-	event.preventDefault();
+  if (isExpanded.value) {
+    maybeRefetchImages();
+  }
 };
 
-const handleTouchMove = (event: TouchEvent) => {
-	if (!touchState.value.isValidTap) return;
-
-	const touch = event.touches[0];
-	if (!touch) return;
-
-	const touchDistance = Math.sqrt(
-		Math.pow(touch.clientX - touchState.value.startPosition.x, 2) + Math.pow(touch.clientY - touchState.value.startPosition.y, 2)
-	);
-
-	// If user moves more than 10px, it's likely scrolling - invalidate the tap
-	if (touchDistance > 10) {
-		touchState.value.isValidTap = false;
-	}
-};
-
-const handleTouchEnd = (event: TouchEvent) => {
-	const touch = event.changedTouches[0];
-	if (!touch || !touchState.value.isValidTap) {
-		if (import.meta.dev && !touchState.value.isValidTap) {
-			console.log('Touch end ignored - invalid tap state');
-		}
-		return;
-	}
-
-	const touchDuration = Date.now() - touchState.value.startTime;
-	const touchDistance = Math.sqrt(
-		Math.pow(touch.clientX - touchState.value.startPosition.x, 2) + Math.pow(touch.clientY - touchState.value.startPosition.y, 2)
-	);
-
-	// Validate touch: quick tap (< 500ms) with minimal movement (< 10px)
-	const isValidTap = touchDuration < 500 && touchDistance < 10;
-
-	// Log touch validation in development
-	if (import.meta.dev) {
-		console.log('Touch validation:', {
-			duration: touchDuration,
-			distance: touchDistance,
-			isValid: isValidTap,
-			threshold: { maxDuration: 500, maxDistance: 10 },
-		});
-	}
-
-	if (isValidTap) {
-		event.preventDefault();
-		touchState.value.preventNextClick = true;
-
-		// Prevent ghost clicks by temporarily ignoring click events
-		setTimeout(() => {
-			touchState.value.preventNextClick = false;
-			if (import.meta.dev) {
-				console.log('Ghost click prevention disabled');
-			}
-		}, 300);
-
-		handleTriggerClick();
-	}
-
-	// Reset touch state
-	touchState.value.isValidTap = false;
-};
-
-// Handle click outside to close
-const handleClickOutside = (event: Event) => {
-	if (containerRef.value && !containerRef.value.contains(event.target as Node)) {
-		isExpanded.value = false;
-		isHovered.value = false;
-	}
-};
-
-// Handle touch outside to close (for mobile)
-const handleTouchOutside = (event: Event) => {
-	const touchEvent = event as TouchEvent;
-	const target = touchEvent.touches?.[0]?.target || touchEvent.target;
-	if (containerRef.value && target && !containerRef.value.contains(target as Node)) {
-		isExpanded.value = false;
-		isHovered.value = false;
-	}
-};
-
-// Load images and set up event listeners on mount
 onMounted(() => {
-	// Detect if this is a touch device
-	detectTouchDevice();
-
-	// Load initial images in background
-	if (images.value.length === 0) {
-		refetch().then(() => {
-			// Images are loaded, no additional preloading needed with NuxtImg
-			console.log('Cat images loaded successfully');
-		});
-	}
-
-	// Add event listeners for closing on outside click/touch
-	document.addEventListener('click', handleClickOutside);
-	document.addEventListener('touchend', handleTouchOutside);
+  document.addEventListener('click', handleClickOutside);
+  document.addEventListener('touchstart', handleClickOutside, { passive: true });
 });
 
-onUnmounted(() => {
-	document.removeEventListener('click', handleClickOutside);
-	document.removeEventListener('touchend', handleTouchOutside);
-
-	// Reset touch state on unmount
-	touchState.value = {
-		startTime: 0,
-		startPosition: { x: 0, y: 0 },
-		isValidTap: false,
-		preventNextClick: false,
-	};
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside);
+  document.removeEventListener('touchstart', handleClickOutside);
 });
 </script>
 
 <style lang="scss" scoped>
-// Styles are defined in the main SCSS architecture
-// Using the .animated-sticker class from assets/styles/critical.scss
+.animated-sticker {
+  height: 16.625rem;
+  display: flex;
+  padding-top: 0.1rem;
+  overflow: hidden;
+  position: fixed;
+  right: 0;
+  top: 50%;
+  z-index: 10;
+  flex-direction: column;
+  align-items: center;
+  background-color: var(--hover-gray);
+  border-bottom-left-radius: 1.4rem;
+  border-top-left-radius: 1.4rem;
+  box-shadow: 0 0.4rem 2rem rgba(var(--default-shadow-rgba));
+  cursor: pointer;
+  transition: width 0.4s ease-in-out;
+  width: 4.25rem;
+  transform: translateY(-50%);
+  will-change: transform;
+
+  // Элементы
+  &__title {
+    // В свернутом состоянии заголовок скрыт
+    max-width: 8rem;
+    opacity: 0;
+    visibility: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 23px;
+    font-weight: 600;
+    line-height: 1.3;
+    text-align: center;
+    white-space: nowrap;
+    transition: width 0.3s ease-in-out;
+  }
+
+  &__image {
+    transition: 0.2s ease-in-out;
+
+    &-photo {
+      outline: 0.3rem solid var(--hover-gray);
+      border-radius: 1rem;
+      height: 4rem;
+      width: 4rem;
+
+      &:nth-child(2) {
+        transform: translateY(-1.5rem);
+      }
+
+      &:nth-child(3) {
+        transform: translateY(-3rem);
+      }
+
+      img {
+        border-radius: 1rem;
+        height: 100%;
+        object-fit: cover;
+        width: 100%;
+        transition: 0.3s ease-in-out;
+      }
+    }
+  }
+
+  &__icon {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    width: 16px;
+    height: 16px;
+  }
+
+  &__action {
+    bottom: -5rem;
+    position: absolute;
+    border: 0.1rem solid transparent;
+    box-shadow: 0 0.4rem 2rem rgba(var(--default-shadow-rgba));
+    transition:
+      box-shadow 0.3s ease,
+      -webkit-box-shadow 0.3s ease;
+    pointer-events: none;
+  }
+
+  // Модификаторы
+  &--is-hovered {
+    width: 16.625rem;
+    padding-top: 1.5rem;
+    padding-bottom: 6rem; // Место для кнопки
+
+    .animated-sticker__icon {
+      opacity: 0; // Скрываем иконку в развернутом состоянии
+      pointer-events: none;
+    }
+
+    .animated-sticker__title {
+      opacity: 1;
+      max-width: 10rem;
+      max-height: 2rem;
+      margin-bottom: 1.5rem;
+      visibility: visible;
+      white-space: normal;
+      font-size: 23px;
+    }
+
+    .animated-sticker__image {
+      // display: block;
+      height: 5rem;
+      // margin-top: 1.5rem;
+      // margin-bottom: 0;
+      margin-left: 7rem;
+      transform: rotate(90deg);
+    }
+
+    .animated-sticker__image-photo {
+      display: block;
+      position: relative;
+
+      &:nth-child(2) {
+        transform: translateY(0);
+      }
+
+      &:nth-child(3) {
+        transform: translateY(0);
+      }
+
+      img {
+        transform: rotate(-90deg);
+      }
+    }
+
+    .animated-sticker__action {
+      background-color: var(--background-color);
+      padding: 0.8rem 1.6rem;
+      bottom: 2rem;
+      border-radius: var(--border-radius-sm);
+      opacity: 1;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      pointer-events: auto;
+      white-space: nowrap;
+    }
+  }
+}
 </style>

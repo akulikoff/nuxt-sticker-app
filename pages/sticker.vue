@@ -1,5 +1,5 @@
 <template>
-	<StickerPage />
+  <StickerPage />
 </template>
 
 <script setup lang="ts">

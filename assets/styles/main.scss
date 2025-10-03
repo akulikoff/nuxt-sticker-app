@@ -5,17 +5,17 @@
 
 // Smooth loading enhancements
 .sticker-page {
-	// Add subtle fade-in for content after critical styles load
-	&__section {
-		opacity: 0;
-		animation: fadeInSmooth 0.3s ease-out forwards;
+  // Add subtle fade-in for content after critical styles load
+  &__section {
+    opacity: 0;
+    animation: fadeInSmooth 0.3s ease-out forwards;
 
-		@for $i from 1 through 10 {
-			&:nth-child(#{$i}) {
-				animation-delay: #{$i * 0.05}s;
-			}
-		}
-	}
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.05}s;
+      }
+    }
+  }
 }
 
 // SCSS variables for consistency (already defined in critical.scss)
@@ -36,178 +36,178 @@ $border-radius-lg: 12px;
 
 // Mixins for consistency
 @mixin smooth-transition($property: all, $duration: $animation-duration-normal) {
-	transition: $property $duration $animation-easing-smooth;
+  transition: $property $duration $animation-easing-smooth;
 }
 
 /* Enhanced interactions for home page - loaded after critical styles */
 .home-page__cta {
-	// Enhanced hover animations
-	&:focus {
-		outline: 2px solid rgba(59, 130, 246, 0.5);
-		outline-offset: 2px;
-	}
+  // Enhanced hover animations
+  &:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+  }
 
-	&:active {
-		transform: translateY(-1px);
-		box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
-	}
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
+  }
 }
 
 /* Enhanced navigation interactions - loaded after critical styles */
 .navigation {
-	// Enhanced scrolling effects
-	&.scrolled {
-		background-color: rgba(255, 255, 255, 0.95);
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-	}
+  // Enhanced scrolling effects
+  &.scrolled {
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 }
 
 .navigation__link {
-	// Enhanced focus states
-	&:focus {
-		outline: 2px solid rgba(59, 130, 246, 0.5);
-		outline-offset: 2px;
-		border-radius: 4px;
-	}
+  // Enhanced focus states
+  &:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.5);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 
-	// Enhanced active states
-	&:active {
-		transform: translateY(1px);
-	}
+  // Enhanced active states
+  &:active {
+    transform: translateY(1px);
+  }
 }
 
 /* Enhanced sticker page interactions - loaded after critical styles */
 .sticker-page__section {
-	// Enhanced focus states for accessibility
-	&:focus-within {
-		outline: 2px solid rgba(59, 130, 246, 0.3);
-		outline-offset: 2px;
-	}
+  // Enhanced focus states for accessibility
+  &:focus-within {
+    outline: 2px solid rgba(59, 130, 246, 0.3);
+    outline-offset: 2px;
+  }
 
-	// Refined hover animations
-	&:hover {
-		transform: translateY(-2px);
-		transition: all var(--animation-duration-normal) var(--animation-easing-smooth);
-	}
+  // Refined hover animations
+  &:hover {
+    transform: translateY(-2px);
+    transition: all var(--animation-duration-normal) var(--animation-easing-smooth);
+  }
 }
 
 .sticker-page__highlight {
-	// Enhanced highlight effects
-	&:hover {
-		background: linear-gradient(120deg, transparent 0%, rgba(245, 158, 11, 0.3) 50%, transparent 100%);
-	}
+  // Enhanced highlight effects
+  &:hover {
+    background: linear-gradient(120deg, transparent 0%, rgba(245, 158, 11, 0.3) 50%, transparent 100%);
+  }
 }
 
 /* Enhanced animated sticker interactions - loaded after critical styles */
-.animated-sticker__trigger {
-	// Enhanced accessibility
-	&:focus {
-		outline: 3px solid rgba(255, 255, 255, 0.6);
-		outline-offset: 2px;
-	}
+.animated-sticker {
+  // Enhanced accessibility
+  &:focus {
+    outline: 3px solid rgba(255, 255, 255, 0.6);
+    outline-offset: 2px;
+  }
 
-	// Refined state animations
-	&--loading {
-		cursor: wait;
-		animation: pulse 2s infinite;
-	}
+  // Refined state animations
+  &--loading {
+    cursor: wait;
+    animation: pulse 2s infinite;
+  }
 
-	&--error {
-		background: linear-gradient(135deg, #ef4444, #f97316);
-	}
+  &--error {
+    background: linear-gradient(135deg, #ef4444, #f97316);
+  }
 }
 
 .animated-sticker__card {
-	// Enhanced interaction feedback
-	&:focus {
-		outline: 2px solid rgba(59, 130, 246, 0.6);
-		outline-offset: 2px;
-	}
+  // Enhanced interaction feedback
+  &:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.6);
+    outline-offset: 2px;
+  }
 
-	&:active {
-		transform: scale(0.98);
-	}
+  &:active {
+    transform: scale(0.98);
+  }
 }
 
 .animated-sticker__retry-btn {
-	// Enhanced button interactions
-	&:hover {
-		background-color: #d97706;
-		transform: scale(1.05);
-	}
+  // Enhanced button interactions
+  &:hover {
+    background-color: #d97706;
+    transform: scale(1.05);
+  }
 
-	&:focus {
-		outline: 2px solid rgba(245, 158, 11, 0.6);
-		outline-offset: 1px;
-	}
+  &:focus {
+    outline: 2px solid rgba(245, 158, 11, 0.6);
+    outline-offset: 1px;
+  }
 }
 
 // Enhanced animations
 @keyframes pulse {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0.7;
-	}
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 /* Enhanced animations for better UX */
 @keyframes fadeInScale {
-	from {
-		opacity: 0;
-		transform: translateY(20px) scale(0.95);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0) scale(1);
-	}
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 @keyframes slideInRight {
-	from {
-		opacity: 0;
-		transform: translateX(30px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
-	}
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 // Smooth fade-in animation for content sections
 @keyframes fadeInSmooth {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 // Enhanced mobile interactions
 @media (max-width: 768px) {
-	.animated-sticker__trigger {
-		// Enhanced touch target size
-		&:active {
-			transform: scale(0.95) translateY(-2px);
-		}
-	}
+  .animated-sticker__trigger {
+    // Enhanced touch target size
+    &:active {
+      transform: scale(0.95) translateY(-2px);
+    }
+  }
 
-	.animated-sticker__card {
-		// Better mobile touch interactions
-		&:active {
-			transform: scale(0.95);
-		}
-	}
+  .animated-sticker__card {
+    // Better mobile touch interactions
+    &:active {
+      transform: scale(0.95);
+    }
+  }
 }
 
 // Reduce motion for accessibility
 @media (prefers-reduced-motion: reduce) {
-	* {
-		animation-duration: 0.01ms !important;
-		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
-	}
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
